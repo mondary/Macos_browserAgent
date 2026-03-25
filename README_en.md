@@ -1,0 +1,95 @@
+# Codex Browser Agent
+
+![Project icon](icon.png)
+
+[🇬🇧 EN](README_en.md) · [🇫🇷 FR](README.md)
+
+Chrome MV3 extension with side panel that sends natural language requests to a local bridge using Codex CLI to automate browser actions.
+
+## ✅ Features
+
+- Integrated Chrome side panel for natural language queries
+- Local HTTP bridge communicating with Codex CLI
+- DOM snapshot + screenshot for page analysis
+- Orchestration up to 8 reasoning steps per request
+- Support for complex sites (Gmail, web applications)
+- Flexible configuration via environment variables
+
+## 🧠 Usage
+
+### Start the bridge
+
+```bash
+npm run start:bridge
+```
+
+Optional environment variables:
+
+```bash
+BRIDGE_HOST=127.0.0.1
+BRIDGE_PORT=7823
+CODEX_BIN=codex
+CODEX_MODEL=gpt-5.4
+```
+
+### Load the Chrome extension
+
+1. Open `chrome://extensions`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the `extension/` folder
+5. Pin the extension for quick access
+6. Click the extension to open the side panel
+
+### Example queries
+
+- `Read the first 5 visible email threads and give me a short digest.`
+- `Open the first result on this page.`
+- `Scroll until you find pricing, then summarize it.`
+- `Click the "Sign up" button and fill the form.`
+
+## 🧠 Architecture
+
+```
+extension/
+├── manifest.json           # MV3 configuration
+├── background.js           # Service worker
+├── content-script.js       # DOM analysis
+├── sidepanel.js/html/css   # User interface
+
+bridge/
+├── server.mjs              # Local HTTP server
+├── agent-schema.json       # Configuration schema
+```
+
+## ⚙️ Configuration
+
+The bridge listens by default on `127.0.0.1:7823` (localhost only).
+
+Available variables:
+- `BRIDGE_HOST`: Listen host (default: 127.0.0.1)
+- `BRIDGE_PORT`: Listen port (default: 7823)
+- `CODEX_BIN`: Codex binary (default: codex)
+- `CODEX_MODEL`: Model to use (default: empty)
+
+## ⚠️ Limitations
+
+- Works only on pages where content scripts are allowed
+- Uses compact DOM snapshot + screenshot, not full browser automation
+- Side panel orchestrates up to 8 reasoning steps per request
+- Gmail and other complex apps may still need iteration for optimal reliability
+
+## 🧾 Changelog
+
+### 0.1.0
+- Initial release
+- Chrome side panel support
+- Local HTTP bridge with Codex CLI
+- DOM snapshot + screenshot
+- Multi-step orchestration
+
+## 🔗 Links
+
+- [FR README](README.md)
+- Codex CLI: https://github.com/anthropics/codex
+- Issue Tracker: https://github.com/votre-username/macos-browser-agent/issues
