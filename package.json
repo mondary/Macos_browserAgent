@@ -1,10 +1,13 @@
 {
   "name": "macos-browser-agent",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Chrome side panel extension backed by Codex CLI for browser assistance.",
+  "description": "Chrome side panel extension backed by AI CLI (codex, gemini, glm) for browser assistance.",
   "type": "module",
   "scripts": {
-    "start:bridge": "node bridge/server.mjs"
+    "start": "node bridge/server.mjs",
+    "start:codex": "AI_CLI=codex node bridge/server.mjs",
+    "start:gemini": "AI_CLI=gemini node bridge/server.mjs",
+    "start:glm": "AI_CLI=glm node bridge/server.mjs"
   }
 }

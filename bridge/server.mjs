@@ -10,9 +10,100 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCHEMA_PATH = path.join(__dirname, "agent-schema.json");
 const HOST = process.env.BRIDGE_HOST ?? "127.0.0.1";
 const PORT = Number(process.env.BRIDGE_PORT ?? "7823");
-const CODEX_BIN = process.env.CODEX_BIN ?? "codex";
-const CODEX_MODEL = process.env.CODEX_MODEL ?? "";
+
+// CLI Configuration
+const AI_CLI = process.env.AI_CLI ?? "codex";
+const AI_MODEL = process.env.AI_MODEL ?? "";
 const MAX_BODY_SIZE = 8 * 1024 * 1024;
+
+// CLI providers configuration
+const CLI_PROVIDERS = {
+  codex: {
+    bin: process.env.CODEX_BIN ?? "codex",
+    buildArgs: (model, outputPath, imagePath) => {
+      const args = [
+        "exec",
+        "--skip-git-repo-check",
+        "--sandbox", "read-only",
+        "--output-schema", SCHEMA_PATH,
+        "--output-last-message", outputPath,
+        "-"
+      ];
+      if (model) {
+        args.splice(1, 0, "--model", model);
+      }
+      if (imagePath) {
+        args.splice(args.length - 1, 0, "--image", imagePath);
+      }
+      return args;
+    },
+    parseOutput: async (outputPath) => {
+      return JSON.parse(await readFile(outputPath, "utf8"));
+    }
+  },
+
+  gemini: {
+    bin: process.env.GEMINI_BIN ?? "gemini",
+    buildArgs: (model, outputPath, imagePath) => {
+      const args = [];
+      if (model) {
+        args.push("--model", model);
+      }
+      if (imagePath) {
+        args.push("--image", imagePath);
+      }
+      args.push("--output", outputPath);
+      return args;
+    },
+    parseOutput: async (outputPath) => {
+      const text = await readFile(outputPath, "utf8");
+      // Try JSON parse first, fallback to text
+      try {
+        return JSON.parse(text);
+      } catch {
+        // If not JSON, wrap in expected format
+        return {
+          assistantMessage: text,
+          status: "done",
+          actions: [],
+          reasoning: "Direct response from Gemini CLI"
+        };
+      }
+    }
+  },
+
+  glm: {
+    bin: process.env.GLM_BIN ?? "glm",
+    buildArgs: (model, outputPath, imagePath) => {
+      const args = [];
+      if (model) {
+        args.push("-m", model);
+      } else {
+        args.push("-m", "glm-4.7");
+      }
+      if (imagePath) {
+        args.push("--image", imagePath);
+      }
+      args.push("--output", outputPath);
+      return args;
+    },
+    parseOutput: async (outputPath) => {
+      const text = await readFile(outputPath, "utf8");
+      // Try JSON parse first, fallback to text
+      try {
+        return JSON.parse(text);
+      } catch {
+        // If not JSON, wrap in expected format
+        return {
+          assistantMessage: text,
+          status: "done",
+          actions: [],
+          reasoning: "Direct response from GLM CLI"
+        };
+      }
+    }
+  }
+};
 
 await mkdir(path.join(__dirname, "tmp"), { recursive: true });
 
@@ -97,40 +188,32 @@ ${JSON.stringify(page, null, 2)}
 `.trim();
 }
 
-async function runCodexStep(payload) {
+async function runAIStep(payload) {
+  const provider = CLI_PROVIDERS[AI_CLI];
+
+  if (!provider) {
+    throw new Error(`Unknown AI CLI provider: ${AI_CLI}. Available: ${Object.keys(CLI_PROVIDERS).join(", ")}`);
+  }
+
   const prompt = buildPrompt(payload);
   const requestId = randomUUID();
   const workDir = path.join(tmpdir(), `macos-browser-agent-${requestId}`);
   const outputPath = path.join(workDir, "response.json");
-  const imagePath = path.join(workDir, "page.jpg");
 
   await mkdir(workDir, { recursive: true });
 
-  const args = [
-    "exec",
-    "--skip-git-repo-check",
-    "--sandbox",
-    "read-only",
-    "--output-schema",
-    SCHEMA_PATH,
-    "--output-last-message",
-    outputPath,
-    "-"
-  ];
-
-  if (CODEX_MODEL) {
-    args.splice(1, 0, "--model", CODEX_MODEL);
-  }
-
+  let imagePath = null;
   if (payload.page?.screenshotDataUrl?.startsWith("data:image/")) {
     const [, base64] = payload.page.screenshotDataUrl.split(",", 2);
     if (base64) {
+      imagePath = path.join(workDir, "page.jpg");
       await writeFile(imagePath, Buffer.from(base64, "base64"));
-      args.splice(args.length - 1, 0, "--image", imagePath);
     }
   }
 
-  const child = spawn(CODEX_BIN, args, {
+  const args = provider.buildArgs(AI_MODEL, outputPath, imagePath);
+
+  const child = spawn(provider.bin, args, {
     cwd: payload.cwd || process.cwd(),
     env: process.env,
     stdio: ["pipe", "pipe", "pipe"]
@@ -156,11 +239,11 @@ async function runCodexStep(payload) {
   });
 
   if (exitCode !== 0) {
-    throw new Error(`Codex exec failed with code ${exitCode}\n${stderr || stdout}`.trim());
+    throw new Error(`${AI_CLI} exec failed with code ${exitCode}\n${stderr || stdout}`.trim());
   }
 
   try {
-    const response = JSON.parse(await readFile(outputPath, "utf8"));
+    const response = await provider.parseOutput(outputPath);
     return response;
   } finally {
     await rm(workDir, { recursive: true, force: true });
@@ -188,8 +271,8 @@ const server = createServer(async (req, res) => {
       jsonResponse(res, 200, {
         ok: true,
         service: "macos-browser-agent-bridge",
-        codexBin: CODEX_BIN,
-        model: CODEX_MODEL || null
+        provider: AI_CLI,
+        model: AI_MODEL || null
       });
       return;
     }
@@ -197,7 +280,7 @@ const server = createServer(async (req, res) => {
     if (req.method === "POST" && req.url === "/agent/step") {
       const body = await collectBody(req);
       const payload = JSON.parse(body);
-      const result = await runCodexStep(payload);
+      const result = await runAIStep(payload);
       jsonResponse(res, 200, result);
       return;
     }
@@ -212,4 +295,5 @@ const server = createServer(async (req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Bridge listening on http://${HOST}:${PORT}`);
+  console.log(`Using AI CLI: ${AI_CLI}${AI_MODEL ? ` (model: ${AI_MODEL})` : ""}`);
 });

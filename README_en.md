@@ -20,16 +20,30 @@ Chrome MV3 extension with side panel that sends natural language requests to a l
 ### Start the bridge
 
 ```bash
-npm run start:bridge
+# Default (Codex)
+npm start
+
+# Or choose a specific provider
+npm run start:codex
+npm run start:gemini
+npm run start:glm
 ```
 
 Optional environment variables:
 
 ```bash
+# Bridge
 BRIDGE_HOST=127.0.0.1
 BRIDGE_PORT=7823
+
+# AI CLI Provider (codex, gemini, glm)
+AI_CLI=codex
+AI_MODEL=gpt-5.4
+
+# Optional: custom binaries
 CODEX_BIN=codex
-CODEX_MODEL=gpt-5.4
+GEMINI_BIN=gemini
+GLM_BIN=glm
 ```
 
 ### Load the Chrome extension
@@ -66,11 +80,36 @@ bridge/
 
 The bridge listens by default on `127.0.0.1:7823` (localhost only).
 
-Available variables:
+### AI Providers
+
+The bridge supports multiple CLI providers:
+
+| Provider | AI_CLI variable | AI_MODEL variable  | Default binary |
+|----------|-----------------|-------------------|----------------|
+| Codex    | `codex`         | `gpt-5.4`         | `codex`        |
+| Gemini   | `gemini`        | `gemini-2.0-flash`| `gemini`       |
+| GLM      | `glm`           | `glm-4.7`         | `glm`          |
+
+**Usage examples:**
+
+```bash
+# With Codex (default)
+AI_CLI=codex AI_MODEL=gpt-5.4 npm run start:bridge
+
+# With Gemini
+AI_CLI=gemini AI_MODEL=gemini-2.0-flash npm run start:bridge
+
+# With GLM
+AI_CLI=glm AI_MODEL=glm-4.7 npm run start:bridge
+```
+
+### Available variables
+
 - `BRIDGE_HOST`: Listen host (default: 127.0.0.1)
 - `BRIDGE_PORT`: Listen port (default: 7823)
-- `CODEX_BIN`: Codex binary (default: codex)
-- `CODEX_MODEL`: Model to use (default: empty)
+- `AI_CLI`: AI provider (`codex`, `gemini`, `glm`) - default: `codex`
+- `AI_MODEL`: Model to use
+- `CODEX_BIN`, `GEMINI_BIN`, `GLM_BIN`: Path to binaries
 
 ## ⚠️ Limitations
 
@@ -80,6 +119,12 @@ Available variables:
 - Gmail and other complex apps may still need iteration for optimal reliability
 
 ## 🧾 Changelog
+
+### 0.2.0
+- Multi-provider support: Codex, Gemini, GLM
+- Unified environment variables (AI_CLI, AI_MODEL)
+- NPM scripts for each provider
+- Configuration refactor
 
 ### 0.1.0
 - Initial release

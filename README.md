@@ -20,16 +20,30 @@ Extension Chrome MV3 avec panneau latéral qui envoie des requêtes en langage n
 ### Démarrer le bridge
 
 ```bash
-npm run start:bridge
+# Par défaut (Codex)
+npm start
+
+# Ou choisir un provider spécifique
+npm run start:codex
+npm run start:gemini
+npm run start:glm
 ```
 
 Variables d'environnement optionnelles :
 
 ```bash
+# Bridge
 BRIDGE_HOST=127.0.0.1
 BRIDGE_PORT=7823
+
+# AI CLI Provider (codex, gemini, glm)
+AI_CLI=codex
+AI_MODEL=gpt-5.4
+
+# Optionnels : binaires personnalisés
 CODEX_BIN=codex
-CODEX_MODEL=gpt-5.4
+GEMINI_BIN=gemini
+GLM_BIN=glm
 ```
 
 ### Charger l'extension Chrome
@@ -66,11 +80,36 @@ bridge/
 
 Le bridge écoute par défaut sur `127.0.0.1:7823` (localhost uniquement).
 
-Variables disponibles :
+### Providers AI
+
+Le bridge supporte plusieurs CLI :
+
+| Provider | Variable AI_CLI | Variable AI_MODEL | Binaire par défaut |
+|----------|-----------------|-------------------|-------------------|
+| Codex    | `codex`         | `gpt-5.4`         | `codex`           |
+| Gemini   | `gemini`        | `gemini-2.0-flash`| `gemini`          |
+| GLM      | `glm`           | `glm-4.7`         | `glm`             |
+
+**Exemples d'utilisation :**
+
+```bash
+# Avec Codex (défaut)
+AI_CLI=codex AI_MODEL=gpt-5.4 npm run start:bridge
+
+# Avec Gemini
+AI_CLI=gemini AI_MODEL=gemini-2.0-flash npm run start:bridge
+
+# Avec GLM
+AI_CLI=glm AI_MODEL=glm-4.7 npm run start:bridge
+```
+
+### Variables disponibles
+
 - `BRIDGE_HOST` : Hôte d'écoute (défaut: 127.0.0.1)
 - `BRIDGE_PORT` : Port d'écoute (défaut: 7823)
-- `CODEX_BIN` : Binaire Codex (défaut: codex)
-- `CODEX_MODEL` : Modèle à utiliser (défaut: vide)
+- `AI_CLI` : Provider AI (`codex`, `gemini`, `glm`) - défaut: `codex`
+- `AI_MODEL` : Modèle à utiliser
+- `CODEX_BIN`, `GEMINI_BIN`, `GLM_BIN` : Chemin vers les binaires
 
 ## ⚠️ Limitations
 
@@ -80,6 +119,12 @@ Variables disponibles :
 - Gmail et autres applications complexes peuvent nécessiter des itérations pour une fiabilité optimale
 
 ## 🧾 Changelog
+
+### 0.2.0
+- Support multi-providers : Codex, Gemini, GLM
+- Variables d'environnement unifiées (AI_CLI, AI_MODEL)
+- Scripts npm pour chaque provider
+- Refactorisation de la configuration
 
 ### 0.1.0
 - Version initiale
