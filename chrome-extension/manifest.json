@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Codex Browser Agent",
+  "version": "0.1.0",
+  "description": "Side panel chat that uses Codex CLI to inspect and act on the current browser tab.",
+  "permissions": ["activeTab", "scripting", "storage", "tabs", "sidePanel"],
+  "host_permissions": ["<all_urls>", "http://127.0.0.1/*", "http://localhost/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "action": {
+    "default_title": "Open Codex Browser Agent"
+  }
+}

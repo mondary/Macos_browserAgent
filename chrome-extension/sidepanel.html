@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codex Browser Agent</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Codex Browser Agent</p>
+          <h1>Browser Copilot</h1>
+        </div>
+        <button id="settings-toggle" class="ghost-button" type="button" aria-label="Toggle bridge settings">
+          Bridge
+        </button>
+      </header>
+
+      <section id="settings-panel" class="settings-panel hidden" aria-label="Bridge settings">
+        <label class="field">
+          <span>Bridge URL</span>
+          <input id="bridge-url" type="url" placeholder="http://127.0.0.1:7823" />
+        </label>
+        <div class="settings-actions">
+          <button id="save-settings" class="secondary-button" type="button">Save</button>
+          <button id="check-bridge" class="secondary-button" type="button">Check</button>
+        </div>
+        <p id="bridge-status" class="status-line">Bridge status unknown.</p>
+      </section>
+
+      <section id="chat-log" class="chat-log" aria-live="polite"></section>
+
+      <section class="composer">
+        <label class="field">
+          <span class="sr-only">Ask Codex to act in the current tab</span>
+          <textarea
+            id="prompt-input"
+            rows="4"
+            placeholder="Example: Open the first 5 visible Gmail threads and give me a digest."
+          ></textarea>
+        </label>
+        <div class="composer-footer">
+          <p id="run-status" class="status-line">Ready.</p>
+          <button id="send-button" class="primary-button" type="button">Run</button>
+        </div>
+      </section>
+    </main>
+
+    <template id="message-template">
+      <article class="message">
+        <p class="message-role"></p>
+        <div class="message-body"></div>
+      </article>
+    </template>
+
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+  </html>

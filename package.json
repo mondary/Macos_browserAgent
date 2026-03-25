@@ -1,0 +1,12 @@
+{
+  "name": "macos-browser-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chrome side panel extension backed by Codex CLI for browser assistance.",
+  "type": "module",
+  "scripts": {
+    "start:bridge": "node bridge/server.mjs",
+    "package": "node scripts/package.mjs",
+    "build": "npm run package"
+  }
+}

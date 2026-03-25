@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "properties": {
+    "assistantMessage": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["continue", "done", "need_user_input"]
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["click", "type", "scroll", "keypress", "open_url", "wait", "go_back"]
+          },
+          "elementId": {
+            "type": ["integer", "null"]
+          },
+          "text": {
+            "type": ["string", "null"]
+          },
+          "url": {
+            "type": ["string", "null"]
+          },
+          "direction": {
+            "type": ["string", "null"],
+            "enum": ["up", "down", null]
+          },
+          "amount": {
+            "type": ["integer", "null"]
+          },
+          "key": {
+            "type": ["string", "null"]
+          },
+          "waitMs": {
+            "type": ["integer", "null"]
+          },
+          "explanation": {
+            "type": ["string", "null"]
+          }
+        },
+        "required": ["type", "elementId", "text", "url", "direction", "amount", "key", "waitMs", "explanation"],
+        "additionalProperties": false
+      }
+    },
+    "reasoning": {
+      "type": "string"
+    }
+  },
+  "required": ["assistantMessage", "status", "actions", "reasoning"],
+  "additionalProperties": false
+}
