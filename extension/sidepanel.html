@@ -1,60 +1,92 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="sober">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Codex Browser Agent</title>
+    <title>Browser Agent</title>
     <link rel="stylesheet" href="sidepanel.css" />
   </head>
   <body>
-    <main class="app-shell">
+    <main class="app">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">Codex Browser Agent</p>
-          <h1>Browser Copilot</h1>
+        <div class="topbar-left">
+          <span class="logo">BA</span>
+          <div>
+            <p class="eyebrow">browser agent</p>
+            <h1 id="provider-label">codex</h1>
+          </div>
         </div>
-        <button id="settings-toggle" class="ghost-button" type="button" aria-label="Toggle bridge settings">
-          Bridge
-        </button>
+        <div class="topbar-right">
+          <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle theme" title="Toggle graffiti mode">
+            <span class="theme-icon" id="theme-icon">sober</span>
+          </button>
+          <button id="settings-toggle" class="icon-btn" type="button" aria-label="Settings" title="Setup & bridge settings">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </button>
+        </div>
       </header>
 
+      <section id="tamagotchi-container" class="tamagotchi-zone hidden" aria-hidden="true">
+        <pre id="tamagotchi" class="tamagotchi"></pre>
+        <p id="tamagotchi-status" class="tamagotchi-status"></p>
+      </section>
+
       <section id="settings-panel" class="settings-panel hidden" aria-label="Bridge settings">
+        <p class="settings-section-title">Bridge URL</p>
         <label class="field">
-          <span>Bridge URL</span>
           <input id="bridge-url" type="url" placeholder="http://127.0.0.1:7823" />
         </label>
         <div class="settings-actions">
-          <button id="save-settings" class="secondary-button" type="button">Save</button>
-          <button id="check-bridge" class="secondary-button" type="button">Check</button>
+          <button id="save-settings" class="btn-secondary" type="button">Save</button>
+          <button id="check-bridge" class="btn-secondary" type="button">Check</button>
         </div>
         <p id="bridge-status" class="status-line">Bridge status unknown.</p>
+
+        <div class="settings-divider"></div>
+
+        <p class="settings-section-title">How to run the bridge server</p>
+        <div class="settings-guide">
+          <p class="guide-step"><span class="guide-num">1</span>Open a terminal</p>
+          <p class="guide-step"><span class="guide-num">2</span><code>cd ~/Documents/GitHub/PROJECTS/Macos_browserAgent</code></p>
+          <p class="guide-step"><span class="guide-num">3</span>Run one of:</p>
+          <div class="guide-commands">
+            <p class="guide-cmd"><code>npm start</code><span class="cmd-label">codex (default)</span></p>
+            <p class="guide-cmd"><code>npm run start:gemini</code><span class="cmd-label">gemini cli</span></p>
+            <p class="guide-cmd"><code>npm run start:glm</code><span class="cmd-label">glm cli</span></p>
+          </div>
+          <p class="guide-step"><span class="guide-num">4</span>Wait for <code>Bridge listening on http://127.0.0.1:7823</code></p>
+          <p class="guide-step"><span class="guide-num">5</span>Navigate to a normal webpage (not chrome://)</p>
+          <p class="guide-step"><span class="guide-num">6</span>Type a request and press send (cmd+enter)</p>
+        </div>
       </section>
 
       <section id="chat-log" class="chat-log" aria-live="polite"></section>
 
       <section class="composer">
-        <label class="field">
-          <span class="sr-only">Ask Codex to act in the current tab</span>
-          <textarea
-            id="prompt-input"
-            rows="4"
-            placeholder="Example: Open the first 5 visible Gmail threads and give me a digest."
-          ></textarea>
-        </label>
+        <textarea
+          id="prompt-input"
+          rows="3"
+          placeholder="Tell the agent what to do..."
+          spellcheck="false"
+        ></textarea>
         <div class="composer-footer">
-          <p id="run-status" class="status-line">Ready.</p>
-          <button id="send-button" class="primary-button" type="button">Run</button>
+          <p id="run-status" class="status-line">Ready</p>
+          <button id="send-button" class="btn-primary" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
         </div>
       </section>
     </main>
 
     <template id="message-template">
       <article class="message">
-        <p class="message-role"></p>
-        <div class="message-body"></div>
+        <div class="msg-header">
+          <span class="msg-role"></span>
+        </div>
+        <div class="msg-body"></div>
       </article>
     </template>
 
     <script type="module" src="sidepanel.js"></script>
   </body>
-  </html>
+</html>

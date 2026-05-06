@@ -3,3 +3,11 @@ release/
 tmp/
 bridge/tmp/
 .DS_Store
+.agent
+/AGENT.md
+/AGENTS.md
+/CLAUDE.md
+/CODEX.md
+/GEMINI.md
+/GLM.md
+/OPENCODE.md

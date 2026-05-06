@@ -14,6 +14,18 @@ async function getActiveTab() {
   return tab ?? null;
 }
 
+async function ensureContentScript(tabId) {
+  try {
+    await chrome.tabs.sendMessage(tabId, { type: "ping" });
+  } catch {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ["content-script.js"]
+    });
+    await delay(200);
+  }
+}
+
 async function sendToActiveTab(message) {
   const tab = await getActiveTab();
   if (!tab?.id) {
@@ -21,9 +33,10 @@ async function sendToActiveTab(message) {
   }
 
   if (!tab.url || /^chrome:|^edge:|^about:/.test(tab.url)) {
-    throw new Error("This page cannot be automated by the extension.");
+    throw new Error("Navigate to a normal webpage first. Content scripts cannot run on browser internal pages.");
   }
 
+  await ensureContentScript(tab.id);
   return chrome.tabs.sendMessage(tab.id, message);
 }
 

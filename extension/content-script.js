@@ -183,6 +183,9 @@ async function performAction(action) {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     switch (message.type) {
+      case "ping":
+        sendResponse({ ok: true });
+        break;
       case "snapshot":
         sendResponse(buildSnapshot());
         break;

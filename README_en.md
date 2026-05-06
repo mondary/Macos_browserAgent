@@ -4,7 +4,7 @@
 
 [🇬🇧 EN](README_en.md) · [🇫🇷 FR](README.md)
 
-Chrome MV3 extension with side panel that sends natural language requests to a local bridge using Codex CLI to automate browser actions.
+✨ Chrome MV3 extension with side panel to automate your browser via AI (Codex, Gemini, GLM).
 
 ## ✅ Features
 

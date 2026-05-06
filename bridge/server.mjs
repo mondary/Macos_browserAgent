@@ -74,26 +74,19 @@ const CLI_PROVIDERS = {
 
   glm: {
     bin: process.env.GLM_BIN ?? "glm",
-    buildArgs: (model, outputPath, imagePath) => {
-      const args = [];
-      if (model) {
-        args.push("-m", model);
-      } else {
-        args.push("-m", "glm-4.7");
-      }
-      if (imagePath) {
-        args.push("--image", imagePath);
-      }
-      args.push("--output", outputPath);
+    buildArgs: (model) => {
+      const args = ["--yolo"];
+      args.push("-m", model || "glm-5");
       return args;
     },
-    parseOutput: async (outputPath) => {
-      const text = await readFile(outputPath, "utf8");
-      // Try JSON parse first, fallback to text
+    parseOutput: async (_outputPath, stdout) => {
+      const text = (stdout || "").trim();
+      if (!text) {
+        return { assistantMessage: "", status: "done", actions: [], reasoning: "No output from GLM" };
+      }
       try {
         return JSON.parse(text);
       } catch {
-        // If not JSON, wrap in expected format
         return {
           assistantMessage: text,
           status: "done",
@@ -101,7 +94,8 @@ const CLI_PROVIDERS = {
           reasoning: "Direct response from GLM CLI"
         };
       }
-    }
+    },
+    usesStdout: true
   }
 };
 
@@ -230,6 +224,10 @@ async function runAIStep(payload) {
     stderr += chunk.toString("utf8");
   });
 
+  child.stdin.on("error", () => {
+    // ignore EPIPE if child closes stdin before we write
+  });
+
   child.stdin.write(prompt);
   child.stdin.end();
 
@@ -243,7 +241,9 @@ async function runAIStep(payload) {
   }
 
   try {
-    const response = await provider.parseOutput(outputPath);
+    const response = provider.usesStdout
+      ? await provider.parseOutput(null, stdout)
+      : await provider.parseOutput(outputPath);
     return response;
   } finally {
     await rm(workDir, { recursive: true, force: true });

@@ -4,7 +4,7 @@
 
 [🇫🇷 FR](README.md) · [🇬🇧 EN](README_en.md)
 
-Extension Chrome MV3 avec panneau latéral qui envoie des requêtes en langage naturel à un bridge local utilisant Codex CLI pour automatiser les actions du navigateur.
+✨ Extension Chrome MV3 avec panneau latéral pour automatiser le navigateur via IA (Codex, Gemini, GLM).
 
 ## ✅ Fonctionnalités
 

@@ -1,6 +1,6 @@
 {
   "name": "macos-browser-agent",
-  "version": "0.2.0",
+  "version": "0.09",
   "private": true,
   "description": "Chrome side panel extension backed by AI CLI (codex, gemini, glm) for browser assistance.",
   "type": "module",
